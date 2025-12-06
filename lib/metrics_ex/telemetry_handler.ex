@@ -78,17 +78,11 @@ defmodule MetricsEx.TelemetryHandler do
     metric = build_metric(event_name, measurements, metadata, metric_type)
 
     if metric do
-      case Recorder.record(metric.name, %{
-             value: metric.value,
-             tags: metric.tags,
-             metadata: metric.metadata
-           }) do
-        :ok ->
-          :ok
-
-        error ->
-          Logger.warning("Failed to record telemetry metric: #{inspect(error)}")
-      end
+      Recorder.record(metric.name, %{
+        value: metric.value,
+        tags: metric.tags,
+        metadata: metric.metadata
+      })
     end
   rescue
     error ->

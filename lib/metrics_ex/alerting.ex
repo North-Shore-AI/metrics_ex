@@ -303,9 +303,16 @@ defmodule MetricsEx.Alerting do
     end
   end
 
-  defp detect_with_zscore(_metrics, _mean, 0, _threshold), do: []
-
   defp detect_with_zscore(metrics, mean, std_dev, threshold) do
+    # Guard against division by zero
+    if std_dev == 0 or std_dev == 0.0 do
+      []
+    else
+      do_detect_zscore(metrics, mean, std_dev, threshold)
+    end
+  end
+
+  defp do_detect_zscore(metrics, mean, std_dev, threshold) do
     metrics
     |> Enum.filter(fn metric ->
       z_score = abs((metric.value - mean) / std_dev)
