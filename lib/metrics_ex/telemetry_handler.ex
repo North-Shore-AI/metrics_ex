@@ -30,6 +30,7 @@ defmodule MetricsEx.TelemetryHandler do
       ...> )
       :ok
   """
+  @spec attach_telemetry(list({list(atom()), atom()}), keyword()) :: :ok
   def attach_telemetry(event_configs, opts \\ []) do
     handler_id = Keyword.get(opts, :handler_id, :metrics_ex_telemetry_handler)
 
@@ -52,6 +53,7 @@ defmodule MetricsEx.TelemetryHandler do
   @doc """
   Detaches MetricsEx from telemetry events.
   """
+  @spec detach_telemetry(atom()) :: :ok | {:error, :not_found}
   def detach_telemetry(handler_id \\ :metrics_ex_telemetry_handler) do
     :telemetry.detach(handler_id)
   end
@@ -59,6 +61,7 @@ defmodule MetricsEx.TelemetryHandler do
   @doc """
   Lists all attached telemetry handlers.
   """
+  @spec list_handlers() :: list(map())
   def list_handlers do
     :telemetry.list_handlers([])
     |> Enum.filter(fn handler ->

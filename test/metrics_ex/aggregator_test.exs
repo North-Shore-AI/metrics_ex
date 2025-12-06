@@ -1,6 +1,7 @@
 defmodule MetricsEx.AggregatorTest do
   use ExUnit.Case, async: false
-  alias MetricsEx.{Aggregator, Storage.ETS, Metric}
+  alias MetricsEx.{Aggregator, Metric}
+  alias MetricsEx.Storage.ETS
 
   setup do
     ETS.clear()

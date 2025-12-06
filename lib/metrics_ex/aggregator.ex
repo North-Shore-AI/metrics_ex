@@ -44,6 +44,7 @@ defmodule MetricsEx.Aggregator do
         %{tenant: "crucible", sum: 567}
       ]
   """
+  @spec query(atom(), keyword()) :: list(map()) | number() | list(MetricsEx.Metric.t())
   def query(name, opts \\ []) do
     aggregation = Keyword.get(opts, :aggregation)
     group_by = Keyword.get(opts, :group_by, [])
@@ -57,28 +58,26 @@ defmodule MetricsEx.Aggregator do
     metrics = ETS.query(storage_opts)
 
     # Group and aggregate
-    if Enum.empty?(group_by) do
-      # No grouping - return single aggregated value
-      if aggregation do
+    cond do
+      Enum.empty?(group_by) and aggregation ->
         aggregate_metrics(metrics, aggregation)
-      else
-        metrics
-      end
-    else
-      # Group by specified fields
-      metrics
-      |> group_metrics(group_by)
-      |> Enum.map(fn {group_key, group_metrics} ->
-        result =
-          if aggregation do
-            Map.put(group_key, aggregation, aggregate_metrics(group_metrics, aggregation))
-          else
-            Map.put(group_key, :metrics, group_metrics)
-          end
 
-        result
-      end)
+      Enum.empty?(group_by) ->
+        metrics
+
+      true ->
+        metrics
+        |> group_metrics(group_by)
+        |> Enum.map(&apply_group_aggregation(&1, aggregation))
     end
+  end
+
+  defp apply_group_aggregation({group_key, group_metrics}, nil) do
+    Map.put(group_key, :metrics, group_metrics)
+  end
+
+  defp apply_group_aggregation({group_key, group_metrics}, aggregation) do
+    Map.put(group_key, aggregation, aggregate_metrics(group_metrics, aggregation))
   end
 
   @doc """
@@ -97,6 +96,7 @@ defmodule MetricsEx.Aggregator do
         ...
       ]
   """
+  @spec time_series(atom(), keyword()) :: list(map())
   def time_series(name, opts \\ []) do
     interval = Keyword.get(opts, :interval, :hour)
     aggregation = Keyword.get(opts, :aggregation, :count)
@@ -132,6 +132,7 @@ defmodule MetricsEx.Aggregator do
         "qwen/fever" => %{mean: 0.68, count: 200, p95: 0.85}
       }
   """
+  @spec rollup(atom(), keyword()) :: map()
   def rollup(name, opts \\ []) do
     group_by = Keyword.get(opts, :group_by, [])
     aggregations = Keyword.get(opts, :aggregations, [:mean, :count])
@@ -254,7 +255,7 @@ defmodule MetricsEx.Aggregator do
 
   defp window_to_time_range(:last_24h) do
     now = DateTime.utc_now()
-    {DateTime.add(now, -86400, :second), now}
+    {DateTime.add(now, -86_400, :second), now}
   end
 
   defp window_to_time_range(:last_7d) do
@@ -268,8 +269,6 @@ defmodule MetricsEx.Aggregator do
   end
 
   defp format_group_key(group_key) do
-    group_key
-    |> Enum.map(fn {_k, v} -> to_string(v) end)
-    |> Enum.join("/")
+    Enum.map_join(group_key, "/", fn {_k, v} -> to_string(v) end)
   end
 end

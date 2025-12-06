@@ -27,7 +27,9 @@ defmodule MetricsEx.MixProject do
       {:telemetry, "~> 1.0"},
       {:telemetry_metrics, "~> 1.0"},
       {:jason, "~> 1.4"},
-      {:phoenix_pubsub, "~> 2.1"}
+      {:phoenix_pubsub, "~> 2.1"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 

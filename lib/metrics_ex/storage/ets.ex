@@ -17,6 +17,7 @@ defmodule MetricsEx.Storage.ETS do
 
   # Client API
 
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -24,6 +25,7 @@ defmodule MetricsEx.Storage.ETS do
   @doc """
   Stores a metric in ETS.
   """
+  @spec store(Metric.t()) :: :ok
   def store(%Metric{} = metric) do
     GenServer.call(__MODULE__, {:store, metric})
   end
@@ -39,6 +41,7 @@ defmodule MetricsEx.Storage.ETS do
     - `:until` - Only return metrics before this DateTime
     - `:limit` - Maximum number of results to return
   """
+  @spec query(keyword()) :: list(Metric.t())
   def query(opts \\ []) do
     GenServer.call(__MODULE__, {:query, opts})
   end
@@ -46,6 +49,7 @@ defmodule MetricsEx.Storage.ETS do
   @doc """
   Returns all metrics in the table (useful for debugging).
   """
+  @spec all() :: list(tuple())
   def all do
     :ets.tab2list(@table_name)
   end
@@ -53,6 +57,7 @@ defmodule MetricsEx.Storage.ETS do
   @doc """
   Clears all metrics from storage.
   """
+  @spec clear() :: :ok
   def clear do
     GenServer.call(__MODULE__, :clear)
   end
@@ -60,6 +65,7 @@ defmodule MetricsEx.Storage.ETS do
   @doc """
   Returns statistics about the storage.
   """
+  @spec stats() :: map()
   def stats do
     GenServer.call(__MODULE__, :stats)
   end

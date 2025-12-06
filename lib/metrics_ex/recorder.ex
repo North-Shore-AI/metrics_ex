@@ -15,6 +15,7 @@ defmodule MetricsEx.Recorder do
 
   # Client API
 
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -32,6 +33,7 @@ defmodule MetricsEx.Recorder do
       ...> })
       :ok
   """
+  @spec record(atom(), map()) :: :ok
   def record(name, data) when is_map(data) do
     value = Map.get(data, :value, 1)
     tags = Map.get(data, :tags, %{})
@@ -53,6 +55,7 @@ defmodule MetricsEx.Recorder do
       iex> MetricsEx.Recorder.increment(:requests_total, 5)
       :ok
   """
+  @spec increment(atom(), number(), keyword()) :: :ok
   def increment(name, amount \\ 1, opts \\ [])
 
   def increment(name, amount, opts) when is_number(amount) do
@@ -74,6 +77,7 @@ defmodule MetricsEx.Recorder do
       iex> MetricsEx.Recorder.gauge(:queue_depth, 42, tags: %{queue: "sno_validation"})
       :ok
   """
+  @spec gauge(atom(), number(), keyword()) :: :ok
   def gauge(name, value, opts \\ []) do
     tags = Keyword.get(opts, :tags, %{})
     metadata = Keyword.get(opts, :metadata, %{})
@@ -89,6 +93,7 @@ defmodule MetricsEx.Recorder do
       iex> MetricsEx.Recorder.histogram(:response_time, 123.45, tags: %{endpoint: "/api"})
       :ok
   """
+  @spec histogram(atom(), number(), keyword()) :: :ok
   def histogram(name, value, opts \\ []) do
     tags = Keyword.get(opts, :tags, %{})
     metadata = Keyword.get(opts, :metadata, %{})
@@ -107,6 +112,7 @@ defmodule MetricsEx.Recorder do
       ...> end, tags: %{query: "SELECT * FROM users"})
       # Returns the function result and records the duration
   """
+  @spec measure(atom(), (-> any()), keyword()) :: any()
   def measure(name, fun, opts \\ []) when is_function(fun, 0) do
     {duration, result} = :timer.tc(fun, :microsecond)
     # Convert to milliseconds

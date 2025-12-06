@@ -6,7 +6,8 @@ defmodule MetricsEx.API do
   in JSON format suitable for web dashboards and external tools.
   """
 
-  alias MetricsEx.{Aggregator, Storage.ETS, Metric}
+  alias MetricsEx.{Aggregator, Metric}
+  alias MetricsEx.Storage.ETS
 
   @doc """
   Returns metrics in JSON-compatible format.
@@ -30,6 +31,7 @@ defmodule MetricsEx.API do
         count: 10
       }
   """
+  @spec get_metrics(keyword()) :: map()
   def get_metrics(opts \\ []) do
     metrics = ETS.query(opts)
 
@@ -61,6 +63,7 @@ defmodule MetricsEx.API do
         timestamp: "2025-12-06T12:00:00Z"
       }
   """
+  @spec get_aggregation(atom(), keyword()) :: map()
   def get_aggregation(name, opts \\ []) do
     window = Keyword.get(opts, :window)
     time_range = if window, do: window_to_time_range(window), else: Keyword.get(opts, :time_range)
@@ -103,6 +106,7 @@ defmodule MetricsEx.API do
         window: :last_24h
       }
   """
+  @spec get_time_series(atom(), keyword()) :: map()
   def get_time_series(name, opts \\ []) do
     window = Keyword.get(opts, :window, :last_24h)
     time_range = window_to_time_range(window)
@@ -149,6 +153,7 @@ defmodule MetricsEx.API do
         timestamp: "2025-12-06T12:00:00Z"
       }
   """
+  @spec get_rollups(atom(), keyword()) :: map()
   def get_rollups(name, opts \\ []) do
     rollups = Aggregator.rollup(name, opts)
 
@@ -179,6 +184,7 @@ defmodule MetricsEx.API do
         timestamp: "2025-12-06T12:00:00Z"
       }
   """
+  @spec get_stats() :: map()
   def get_stats do
     storage_stats = ETS.stats()
     recorder_stats = GenServer.call(MetricsEx.Recorder, :stats)
@@ -205,6 +211,7 @@ defmodule MetricsEx.API do
       iex> MetricsEx.API.to_json(data)
       "{\"metrics\":[...],\"count\":5,...}"
   """
+  @spec to_json(any()) :: String.t()
   def to_json(data) do
     Jason.encode!(data)
   end
@@ -218,7 +225,7 @@ defmodule MetricsEx.API do
 
   defp window_to_time_range(:last_24h) do
     now = DateTime.utc_now()
-    {DateTime.add(now, -86400, :second), now}
+    {DateTime.add(now, -86_400, :second), now}
   end
 
   defp window_to_time_range(:last_7d) do

@@ -14,7 +14,7 @@ defmodule MetricsEx.RecorderTest do
       Process.sleep(50)
 
       results = ETS.query(name: :test_counter)
-      assert length(results) >= 1
+      refute Enum.empty?(results)
       assert hd(results).value == 1
     end
 
@@ -69,7 +69,7 @@ defmodule MetricsEx.RecorderTest do
       Process.sleep(50)
 
       results = ETS.query(name: :test_operation)
-      assert length(results) >= 1
+      refute Enum.empty?(results)
       # Duration should be at least 10ms
       assert hd(results).value >= 10
     end

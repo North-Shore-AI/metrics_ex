@@ -13,7 +13,7 @@ defmodule MetricsExTest do
       Process.sleep(50)
 
       results = ETS.query(name: :test_metric)
-      assert length(results) >= 1
+      refute Enum.empty?(results)
     end
 
     test "increment/1 increments counters" do
@@ -21,7 +21,7 @@ defmodule MetricsExTest do
       Process.sleep(50)
 
       results = ETS.query(name: :test_counter)
-      assert length(results) >= 1
+      refute Enum.empty?(results)
     end
 
     test "gauge/2 records gauge values" do

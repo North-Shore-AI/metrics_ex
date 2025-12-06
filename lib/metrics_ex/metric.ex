@@ -37,6 +37,7 @@ defmodule MetricsEx.Metric do
       iex> MetricsEx.Metric.counter(:jobs_completed, 5, %{tenant: "cns"})
       %MetricsEx.Metric{name: :jobs_completed, type: :counter, value: 5, tags: %{tenant: "cns"}}
   """
+  @spec counter(atom(), number(), tags(), map()) :: t()
   def counter(name, value \\ 1, tags \\ %{}, metadata \\ %{}) do
     %__MODULE__{
       name: name,
@@ -56,6 +57,7 @@ defmodule MetricsEx.Metric do
       iex> MetricsEx.Metric.gauge(:queue_depth, 42, %{queue: "sno_validation"})
       %MetricsEx.Metric{name: :queue_depth, type: :gauge, value: 42, tags: %{queue: "sno_validation"}}
   """
+  @spec gauge(atom(), number(), tags(), map()) :: t()
   def gauge(name, value, tags \\ %{}, metadata \\ %{}) do
     %__MODULE__{
       name: name,
@@ -75,6 +77,7 @@ defmodule MetricsEx.Metric do
       iex> MetricsEx.Metric.histogram(:response_time, 123.45, %{endpoint: "/api/v1"})
       %MetricsEx.Metric{name: :response_time, type: :histogram, value: 123.45, tags: %{endpoint: "/api/v1"}}
   """
+  @spec histogram(atom(), number(), tags(), map()) :: t()
   def histogram(name, value, tags \\ %{}, metadata \\ %{}) do
     %__MODULE__{
       name: name,
@@ -98,6 +101,7 @@ defmodule MetricsEx.Metric do
       ...> )
       %MetricsEx.Metric{name: :work_job_completed_duration, type: :histogram, ...}
   """
+  @spec from_telemetry(list(atom()), map(), map()) :: t()
   def from_telemetry(event_name, measurements, metadata) do
     name = event_name |> Enum.join("_") |> String.to_atom()
 
@@ -118,6 +122,7 @@ defmodule MetricsEx.Metric do
   @doc """
   Converts metric to map format suitable for JSON serialization.
   """
+  @spec to_map(t()) :: map()
   def to_map(%__MODULE__{} = metric) do
     %{
       name: metric.name,

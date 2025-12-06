@@ -26,18 +26,19 @@ defmodule MetricsEx.Storage.Prometheus do
       queue_depth{queue="sno_validation"} 42 1638835200000
       \"\"\"
   """
+  @spec export() :: String.t()
   def export do
     metrics = ETS.all()
 
     metrics
     |> group_by_name()
-    |> Enum.map(&format_metric_family/1)
-    |> Enum.join("\n\n")
+    |> Enum.map_join("\n\n", &format_metric_family/1)
   end
 
   @doc """
   Exports metrics for a specific metric name.
   """
+  @spec export(atom()) :: String.t()
   def export(metric_name) do
     metrics = ETS.query(name: metric_name)
 
@@ -47,14 +48,14 @@ defmodule MetricsEx.Storage.Prometheus do
 
       _ ->
         group_by_name([{nil, hd(metrics)} | Enum.map(tl(metrics), &{nil, &1})])
-        |> Enum.map(&format_metric_family/1)
-        |> Enum.join("\n\n")
+        |> Enum.map_join("\n\n", &format_metric_family/1)
     end
   end
 
   @doc """
   Returns Prometheus-compatible content type.
   """
+  @spec content_type() :: String.t()
   def content_type do
     "text/plain; version=0.0.4; charset=utf-8"
   end
@@ -95,11 +96,9 @@ defmodule MetricsEx.Storage.Prometheus do
   defp format_labels(tags) when map_size(tags) == 0, do: ""
 
   defp format_labels(tags) do
-    tags
-    |> Enum.map(fn {key, value} ->
+    Enum.map_join(tags, ",", fn {key, value} ->
       ~s(#{key}="#{escape_label_value(value)}")
     end)
-    |> Enum.join(",")
   end
 
   defp format_value(value, _type) when is_number(value) do

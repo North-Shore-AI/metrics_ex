@@ -45,7 +45,7 @@ defmodule MetricsEx do
       ])
   """
 
-  alias MetricsEx.{Recorder, Aggregator, TelemetryHandler, API}
+  alias MetricsEx.{Aggregator, API, Recorder, TelemetryHandler}
 
   # Recorder delegations
 
@@ -60,6 +60,7 @@ defmodule MetricsEx do
       ...> })
       :ok
   """
+  @spec record(atom(), map()) :: :ok
   defdelegate record(name, data), to: Recorder
 
   @doc """
@@ -73,6 +74,7 @@ defmodule MetricsEx do
       iex> MetricsEx.increment(:requests_total, 5, tags: %{endpoint: "/api"})
       :ok
   """
+  @spec increment(atom(), number(), keyword()) :: :ok
   defdelegate increment(name, amount \\ 1, opts \\ []), to: Recorder
 
   @doc """
@@ -83,6 +85,7 @@ defmodule MetricsEx do
       iex> MetricsEx.gauge(:queue_depth, 42, tags: %{queue: "default"})
       :ok
   """
+  @spec gauge(atom(), number(), keyword()) :: :ok
   defdelegate gauge(name, value, opts \\ []), to: Recorder
 
   @doc """
@@ -93,6 +96,7 @@ defmodule MetricsEx do
       iex> MetricsEx.histogram(:response_time, 123.45, tags: %{endpoint: "/api"})
       :ok
   """
+  @spec histogram(atom(), number(), keyword()) :: :ok
   defdelegate histogram(name, value, opts \\ []), to: Recorder
 
   @doc """
@@ -104,6 +108,7 @@ defmodule MetricsEx do
       ...>   # expensive operation
       ...> end, tags: %{query: "SELECT"})
   """
+  @spec measure(atom(), (-> any()), keyword()) :: any()
   defdelegate measure(name, fun, opts \\ []), to: Recorder
 
   # Aggregator delegations
@@ -120,6 +125,7 @@ defmodule MetricsEx do
       ...> )
       [%{tenant: "cns", sum: 1234}, ...]
   """
+  @spec query(atom(), keyword()) :: list(map()) | number()
   defdelegate query(name, opts \\ []), to: Aggregator
 
   @doc """
@@ -134,6 +140,7 @@ defmodule MetricsEx do
       ...> )
       [%{timestamp: ~U[...], count: 45}, ...]
   """
+  @spec time_series(atom(), keyword()) :: list(map())
   defdelegate time_series(name, opts \\ []), to: Aggregator
 
   @doc """
@@ -148,6 +155,7 @@ defmodule MetricsEx do
       ...> )
       %{"llama-3.1" => %{mean: 0.72, count: 150}, ...}
   """
+  @spec rollup(atom(), keyword()) :: map()
   defdelegate rollup(name, opts \\ []), to: Aggregator
 
   # Telemetry delegations
@@ -163,11 +171,13 @@ defmodule MetricsEx do
       ...> ])
       :ok
   """
+  @spec attach_telemetry(list({list(atom()), atom()}), keyword()) :: :ok
   defdelegate attach_telemetry(event_configs, opts \\ []), to: TelemetryHandler
 
   @doc """
   Detaches MetricsEx from telemetry events.
   """
+  @spec detach_telemetry(atom()) :: :ok | {:error, :not_found}
   defdelegate detach_telemetry(handler_id \\ :metrics_ex_telemetry_handler), to: TelemetryHandler
 
   # API delegations
@@ -175,30 +185,36 @@ defmodule MetricsEx do
   @doc """
   Returns metrics in JSON-compatible format.
   """
+  @spec get_metrics(keyword()) :: map()
   defdelegate get_metrics(opts \\ []), to: API
 
   @doc """
   Returns aggregated metrics in JSON format.
   """
+  @spec get_aggregation(atom(), keyword()) :: map()
   defdelegate get_aggregation(name, opts \\ []), to: API
 
   @doc """
   Returns time series in JSON format.
   """
+  @spec get_time_series(atom(), keyword()) :: map()
   defdelegate get_time_series(name, opts \\ []), to: API
 
   @doc """
   Returns rollups in JSON format.
   """
+  @spec get_rollups(atom(), keyword()) :: map()
   defdelegate get_rollups(name, opts \\ []), to: API
 
   @doc """
   Returns system statistics.
   """
+  @spec get_stats() :: map()
   defdelegate get_stats(), to: API
 
   @doc """
   Encodes data to JSON string.
   """
+  @spec to_json(any()) :: String.t()
   defdelegate to_json(data), to: API
 end
