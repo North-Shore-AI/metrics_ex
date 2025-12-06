@@ -1,8 +1,22 @@
-# MetricsEx
+<p align="center">
+  <img src="assets/metrics_ex.svg" alt="MetricsEx" width="200">
+</p>
 
-[![Elixir CI](https://github.com/North-Shore-AI/metrics_ex/actions/workflows/elixir.yml/badge.svg)](https://github.com/North-Shore-AI/metrics_ex/actions/workflows/elixir.yml)
+<h1 align="center">MetricsEx</h1>
 
-Centralized metrics aggregation service for experiment results and system health.
+<p align="center">
+  <a href="https://github.com/North-Shore-AI/metrics_ex/actions"><img src="https://github.com/North-Shore-AI/metrics_ex/workflows/CI/badge.svg" alt="CI Status"></a>
+  <a href="https://hex.pm/packages/metrics_ex"><img src="https://img.shields.io/hexpm/v/metrics_ex.svg" alt="Hex.pm"></a>
+  <a href="https://hexdocs.pm/metrics_ex"><img src="https://img.shields.io/badge/docs-hexdocs-blue.svg" alt="Documentation"></a>
+  <img src="https://img.shields.io/badge/elixir-%3E%3D%201.14-purple.svg" alt="Elixir">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a>
+</p>
+
+<p align="center">
+  Metrics aggregation with multiple exporters and intelligent alerting
+</p>
+
+---
 
 ## Purpose
 
