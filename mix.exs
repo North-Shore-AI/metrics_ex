@@ -1,7 +1,7 @@
 defmodule MetricsEx.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/North-Shore-AI/metrics_ex"
 
   def version, do: @version
@@ -37,7 +37,7 @@ defmodule MetricsEx.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40.0", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
@@ -56,7 +56,37 @@ defmodule MetricsEx.MixProject do
       source_url: @source_url,
       assets: %{"assets" => "assets"},
       logo: "assets/metrics_ex.svg",
-      extras: ["README.md", "LICENSE"]
+      extras: [
+        "README.md",
+        "LICENSE"
+      ],
+      groups_for_extras: [
+        Guides: ~r/guides\/.*/
+      ],
+      groups_for_modules: [
+        Core: [
+          MetricsEx,
+          MetricsEx.Metric,
+          MetricsEx.Recorder,
+          MetricsEx.Aggregator
+        ],
+        Storage: [
+          MetricsEx.Storage.ETS,
+          MetricsEx.Storage.Prometheus
+        ],
+        Exporters: [
+          MetricsEx.Exporters.OpenTelemetry,
+          MetricsEx.Exporters.Datadog,
+          MetricsEx.Exporters.InfluxDB
+        ],
+        Utilities: [
+          MetricsEx.Alerting,
+          MetricsEx.TelemetryHandler,
+          MetricsEx.Tagging,
+          MetricsEx.Aggregations,
+          MetricsEx.API
+        ]
+      ]
     ]
   end
 

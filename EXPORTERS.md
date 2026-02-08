@@ -9,6 +9,12 @@ This guide covers how to use the various metric exporters available in MetricsEx
 3. **Datadog** - DogStatsD format for Datadog monitoring
 4. **OpenTelemetry** - OTLP/JSON format for OpenTelemetry backends
 
+## Standard Dimensions
+
+MetricsEx emits these correlation dimensions as tags when present:
+`work_id`, `trace_id`, `plan_id`, `step_id`.
+These appear as labels/tags in every exporter format.
+
 ## Prometheus Exporter
 
 Export metrics in Prometheus text format for scraping.
@@ -41,7 +47,7 @@ end
 ```
 # HELP jobs_completed Jobs completed
 # TYPE jobs_completed counter
-jobs_completed{tenant="cns"} 1234 1638835200000
+jobs_completed{tenant="cns",trace_id="trace-123"} 1234 1638835200000
 jobs_completed{tenant="crucible"} 567 1638835200000
 
 # HELP queue_depth Queue depth

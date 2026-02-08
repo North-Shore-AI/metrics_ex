@@ -113,7 +113,7 @@ defmodule MetricsEx.Metric do
       name: name,
       type: type,
       value: value,
-      tags: extract_tags(metadata),
+      tags: MetricsEx.Tagging.extract(metadata),
       timestamp: DateTime.utc_now(),
       metadata: metadata
     }
@@ -133,14 +133,4 @@ defmodule MetricsEx.Metric do
       metadata: metric.metadata
     }
   end
-
-  # Private functions
-
-  defp extract_tags(metadata) when is_map(metadata) do
-    metadata
-    |> Map.take([:tenant, :model, :dataset, :experiment_id, :queue, :endpoint])
-    |> Enum.into(%{})
-  end
-
-  defp extract_tags(_), do: %{}
 end

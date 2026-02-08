@@ -381,8 +381,7 @@ defmodule MetricsEx.Alerting do
       )
     end)
 
-    # TODO: Add webhook routing
-    # TODO: Add email routing
+    # Webhook routing and email routing should be handled by downstream integrations.
     :ok
   end
 

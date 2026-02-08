@@ -8,7 +8,7 @@ defmodule MetricsEx.TelemetryHandler do
 
   require Logger
 
-  alias MetricsEx.{Metric, Recorder}
+  alias MetricsEx.{Metric, Recorder, Tagging}
 
   @doc """
   Attaches MetricsEx to a list of telemetry events.
@@ -94,7 +94,7 @@ defmodule MetricsEx.TelemetryHandler do
   defp build_metric(event_name, measurements, metadata, metric_type) do
     name = event_name_to_atom(event_name)
     value = extract_value(measurements, metric_type)
-    tags = extract_tags(metadata)
+    tags = Tagging.extract(metadata)
 
     case value do
       nil ->
@@ -138,25 +138,4 @@ defmodule MetricsEx.TelemetryHandler do
       measurements[:time] ||
       measurements[:value]
   end
-
-  defp extract_tags(metadata) when is_map(metadata) do
-    # Extract commonly used tag fields
-    metadata
-    |> Map.take([
-      :tenant,
-      :model,
-      :dataset,
-      :experiment_id,
-      :queue,
-      :endpoint,
-      :method,
-      :status,
-      :job_id,
-      :worker_id,
-      :stage
-    ])
-    |> Enum.into(%{})
-  end
-
-  defp extract_tags(_), do: %{}
 end

@@ -27,6 +27,7 @@ MetricsEx provides comprehensive metrics collection, aggregation, and querying f
 - **System health** (Work jobs, services)
 - **Training progress** (Tinkex)
 
+
 ## Features
 
 - **Multiple metric types**: counters, gauges, histograms
@@ -38,6 +39,7 @@ MetricsEx provides comprehensive metrics collection, aggregation, and querying f
 - **Real-time streaming**: Phoenix PubSub integration
 - **Dashboard-ready**: Pre-computed rollups for UI consumption
 
+
 ## Installation
 
 Add `metrics_ex` to your list of dependencies in `mix.exs`:
@@ -45,7 +47,7 @@ Add `metrics_ex` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:metrics_ex, "~> 0.1.0"}
+    {:metrics_ex, "~> 0.2.0"}
   ]
 end
 ```
@@ -69,7 +71,7 @@ MetricsEx.record(:experiment_result, %{
   experiment_id: "exp_123",
   metric: :entailment_score,
   value: 0.75,
-  tags: %{model: "llama-3.1", dataset: "scifact"}
+  tags: %{model: "llama-3.1", dataset: "scifact", trace_id: "trace-123", work_id: "work-456"}
 })
 
 # Increment counters
@@ -143,7 +145,17 @@ MetricsEx.attach_telemetry([
 ])
 
 # Now telemetry events are automatically recorded
-:telemetry.execute([:work, :job, :completed], %{count: 1}, %{tenant: "cns"})
+:telemetry.execute(
+  [:work, :job, :completed],
+  %{count: 1},
+  %{
+    tenant: "cns",
+    work_id: "work-123",
+    trace_id: "trace-456",
+    plan_id: "plan-789",
+    step_id: "step-abc"
+  }
+)
 ```
 
 ### Prometheus Export
@@ -168,6 +180,18 @@ defmodule MyAppWeb.MetricsController do
   end
 end
 ```
+
+## Standard Dimensions
+
+MetricsEx standardizes on these dimensions for cross-system lineage and RunIndex correlation:
+
+- `work_id`
+- `trace_id`
+- `plan_id`
+- `step_id`
+
+When present in telemetry metadata or in `MetricsEx.record/2` payloads, these values are promoted
+into metric tags so they can be filtered and grouped consistently.
 
 ## Architecture
 

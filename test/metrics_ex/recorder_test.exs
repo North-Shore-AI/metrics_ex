@@ -33,6 +33,20 @@ defmodule MetricsEx.RecorderTest do
       results = ETS.query(name: :test_counter, tags: %{tenant: "cns"})
       assert length(results) == 1
     end
+
+    test "propagates standard dimensions from metadata" do
+      Recorder.increment(:test_counter,
+        tags: %{tenant: "cns"},
+        metadata: %{trace_id: "trace-001", work_id: "work-001"}
+      )
+
+      Process.sleep(50)
+
+      results = ETS.query(name: :test_counter)
+      metric = hd(results)
+      assert metric.tags.trace_id == "trace-001"
+      assert metric.tags.work_id == "work-001"
+    end
   end
 
   describe "gauge/3" do
@@ -89,6 +103,21 @@ defmodule MetricsEx.RecorderTest do
       assert hd(results).value == 0.75
       assert hd(results).tags.model == "llama-3.1"
       assert hd(results).metadata.experiment_id == "exp_123"
+    end
+
+    test "promotes standard dimensions into tags" do
+      Recorder.record(:dimension_metric, %{
+        value: 1,
+        trace_id: "trace-999",
+        work_id: "work-999"
+      })
+
+      Process.sleep(50)
+
+      results = ETS.query(name: :dimension_metric)
+      metric = hd(results)
+      assert metric.tags.trace_id == "trace-999"
+      assert metric.tags.work_id == "work-999"
     end
   end
 end

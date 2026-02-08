@@ -9,7 +9,7 @@ defmodule MetricsEx.Recorder do
   use GenServer
   require Logger
 
-  alias MetricsEx.{Metric, Storage.ETS}
+  alias MetricsEx.{Metric, Storage.ETS, Tagging}
 
   @pubsub_topic "metrics:recorded"
 
@@ -38,6 +38,7 @@ defmodule MetricsEx.Recorder do
     value = Map.get(data, :value, 1)
     tags = Map.get(data, :tags, %{})
     metadata = Map.drop(data, [:value, :tags])
+    tags = Tagging.merge_tags(tags, metadata)
     type = infer_type(name, value)
 
     metric = create_metric(type, name, value, tags, metadata)
@@ -61,6 +62,8 @@ defmodule MetricsEx.Recorder do
   def increment(name, amount, opts) when is_number(amount) do
     tags = Keyword.get(opts, :tags, %{})
     metadata = Keyword.get(opts, :metadata, %{})
+    tags = Tagging.merge_tags(tags, metadata)
+    tags = Tagging.merge_tags(tags, opts)
     metric = Metric.counter(name, amount, tags, metadata)
     GenServer.cast(__MODULE__, {:record, metric})
   end
@@ -81,6 +84,8 @@ defmodule MetricsEx.Recorder do
   def gauge(name, value, opts \\ []) do
     tags = Keyword.get(opts, :tags, %{})
     metadata = Keyword.get(opts, :metadata, %{})
+    tags = Tagging.merge_tags(tags, metadata)
+    tags = Tagging.merge_tags(tags, opts)
     metric = Metric.gauge(name, value, tags, metadata)
     GenServer.cast(__MODULE__, {:record, metric})
   end
@@ -97,6 +102,8 @@ defmodule MetricsEx.Recorder do
   def histogram(name, value, opts \\ []) do
     tags = Keyword.get(opts, :tags, %{})
     metadata = Keyword.get(opts, :metadata, %{})
+    tags = Tagging.merge_tags(tags, metadata)
+    tags = Tagging.merge_tags(tags, opts)
     metric = Metric.histogram(name, value, tags, metadata)
     GenServer.cast(__MODULE__, {:record, metric})
   end

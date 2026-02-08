@@ -54,4 +54,27 @@ defmodule MetricsEx.MetricTest do
       assert is_binary(map.timestamp)
     end
   end
+
+  describe "from_telemetry/3" do
+    test "propagates standard dimensions into tags" do
+      metric =
+        Metric.from_telemetry(
+          [:work, :job, :completed],
+          %{count: 1},
+          %{
+            work_id: "work-123",
+            trace_id: "trace-456",
+            plan_id: "plan-789",
+            step_id: "step-abc",
+            tenant: "cns"
+          }
+        )
+
+      assert metric.tags.work_id == "work-123"
+      assert metric.tags.trace_id == "trace-456"
+      assert metric.tags.plan_id == "plan-789"
+      assert metric.tags.step_id == "step-abc"
+      assert metric.tags.tenant == "cns"
+    end
+  end
 end

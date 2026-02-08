@@ -14,6 +14,7 @@ defmodule MetricsEx do
   - **Fast in-memory storage**: ETS-based with configurable retention
   - **Flexible aggregations**: mean, sum, count, percentiles, time series
   - **Telemetry integration**: Auto-attach to telemetry events
+  - **Lineage-friendly tags**: work_id, trace_id, plan_id, step_id
   - **Export formats**: JSON API, Prometheus text format
   - **Real-time streaming**: Phoenix PubSub integration
 
@@ -24,7 +25,7 @@ defmodule MetricsEx do
         experiment_id: "exp_123",
         metric: :entailment_score,
         value: 0.75,
-        tags: %{model: "llama-3.1", dataset: "scifact"}
+        tags: %{model: "llama-3.1", dataset: "scifact", trace_id: "trace-123", work_id: "work-456"}
       })
 
       MetricsEx.increment(:jobs_completed, tags: %{tenant: "cns"})
@@ -43,6 +44,7 @@ defmodule MetricsEx do
         {[:work, :job, :completed], :counter},
         {[:crucible, :experiment, :completed], :histogram}
       ])
+
   """
 
   alias MetricsEx.{Aggregator, API, Recorder, TelemetryHandler}
